@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 
-import urllib2, urllib, os, sys, shutil, wave, math, subprocess
+import urllib2, urllib, os, re, sys, shutil, wave, math, subprocess
 import midifile
 
-# escape space on filenames being sent to shell commands
+# escape space on inFileKars being sent to shell commands
 def escSpace(s):
     return s.replace(" ", "\ ")
 
 class Song:
-    def __init__(self, filename):
-        self.filename = filename
-        self.songname = os.path.basename(filename).replace(".kar", "")
-        self.MP3S_DIR = "./mp3s/"+self.songname+"/"
+    def __init__(self, inFileKar, inFileLyrics):
+        self.inFileKar = inFileKar
+        self.inFileLyrics = inFileLyrics
+        self.songname = os.path.basename(inFileKar).replace(".kar", "")
+        self.MP3S_DIR = "./out-mp3s/"+self.songname+"/"
         self.WAVS_DIR = self.MP3S_DIR.replace("mp3","wav")
         self.lyrics = None
         self.tonedSyls = None
         self.tonedWords = None
         self.firstNoteTime = None
         self.midi=midifile.midifile()
-        self.midi.load_file(filename)
+        self.midi.load_file(inFileKar)
         self.FNULL = open(os.devnull, 'w')
 
         # some initial clean up
@@ -118,9 +119,9 @@ class Song:
             os.makedirs(self.WAVS_DIR)
 
         tracks2remove = [t for t in candidatesForRemoval if t!=noteTrack and t!=self.midi.kartrack]
-        outFileKar = self.filename.replace(".kar", "__.kar")
-        self.midi.write_file(self.filename, outFileKar, tracks2remove, None, noteTrack)
-        outFileWav = "%s/00.%s.wav" % (self.WAVS_DIR,self.songname)
+        outFileKar = self.inFileKar.replace(".kar", "__.kar")
+        self.midi.write_file(self.inFileKar, outFileKar, tracks2remove, None, noteTrack)
+        outFileWav = "%s/%s.wav" % (self.WAVS_DIR,self.songname)
         midiParams = "-A 100 %s -OwM -o %s"%(outFileKar, outFileWav)
         subprocess.call('timidity '+midiParams, shell=True, stdout=self.FNULL, stderr=subprocess.STDOUT)
         os.remove(outFileKar)
@@ -159,8 +160,21 @@ class Song:
                 sylIndex += 1
             words.append((w,tt, pp, dd))
 
-        ## TODO: read lyrics from file
-        ##       replace word[i][0] with fileWord[i]
+        ## read lyrics from file
+        newLyrics = []
+        with open(inFileLyrics, 'r') as lyricsFile:
+            for w in lyricsFile:
+                newLyrics.append(w.decode('utf-8').encode('iso-8859-1'))
+
+        ## truncate list if one is longer than the other
+        if len(newLyrics) > len(words):
+            newLyrics = newLyrics[0:len(words)]
+        if len(words) > len(newLyrics):
+            words = words[0:len(newLyrics)]
+
+        ## replace original lyrics with lyrics from file
+        for (i,(w,t,p,d)) in enumerate(words):
+            words[i] = (newLyrics[i].strip(), t, p, d)
 
         ## put words with same start time back together
         ultimateWords = []
@@ -176,9 +190,15 @@ class Song:
 
         self.tonedWords = ultimateWords
 
+    def printTonedWords(self):
+        lyrics = ""
+        for (w,t,p,d) in self.tonedWords:
+            lyrics += "%s "%w
+        print lyrics.decode("iso-8859-1")
+
     def prepWordVoice(self, mWordTrader=None):
         ## hash for downloading initial files
-        ##     this maps to (filename, audio length in seconds)
+        ##     this maps to (inFileKar, audio length in seconds)
         wordHash = {}
         for (w,t,p,d) in self.tonedWords:
             # swap words
@@ -241,7 +261,7 @@ class Song:
             voiceFloats = wave.struct.unpack("%dh"%(len(voiceBytes)/sampwidth), voiceBytes)
 
             if (voiceWriter is None):
-                voiceFilename = "%s/%s.wav" % (self.WAVS_DIR,"00.vox")
+                voiceFilename = "%s/%s.wav" % (self.WAVS_DIR,"Vox")
                 if mWordTrader is not None:
                     voiceFilename = voiceFilename.replace(".wav", ".%s.wav"%mWordTrader.name)
                 voiceWriter = wave.open(voiceFilename, 'w')
