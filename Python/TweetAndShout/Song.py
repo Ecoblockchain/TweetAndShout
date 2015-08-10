@@ -12,7 +12,7 @@ class Song:
         self.inFileKar = inFileKar
         self.inFileLyrics = inFileLyrics
         self.songname = os.path.basename(inFileKar).replace(".kar", "")
-        self.MP3S_DIR = "./out-mp3s/"+self.songname+"/"
+        self.MP3S_DIR = "./out-mp3s/"
         self.WAVS_DIR = self.MP3S_DIR.replace("mp3","wav")
         self.lyrics = None
         self.tonedSyls = None
@@ -209,7 +209,9 @@ class Song:
             wordHash[w] = None
 
         url = 'http://translate.google.com/translate_tts?tl=pt&q='
-        header = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)' }
+        aurl = 'http://api.voicerss.org/?key=8da06054ca83462bbe61f69817499793&hl=en-us&src='
+        header = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
+                   'Cookie' : 'GOOGLE_ABUSE_EXEMPTION=ID=320176ce4c71f022:TM=1439227230:C=c:IP=31.221.80.130-:S=APGng0sFP17-UhR6Sbt7iO-ecmHRLKOuzg' }
 
         filesToBeDeleted = []
         if not os.path.exists(self.MP3S_DIR):
@@ -229,14 +231,13 @@ class Song:
                 f = open(mp3FilePath, 'wb')
                 f.write(responseBytes)
                 f.close()
-                ffParams = "-y -i %s -ar 44100 %s"%(escSpace(mp3FilePath), escSpace(wavFilePath))
-                subprocess.call('ffmpeg '+ffParams, shell=True, stdout=self.FNULL, stderr=subprocess.STDOUT)
-                wavWave = wave.open(wavFilePath)
-                wavLength = wavWave.getnframes()/float(wavWave.getframerate())
-                wavWave.close()
-                wordHash[w] = (wavFilePath, wavLength)
+            ffParams = "-y -i %s -ar 44100 %s"%(escSpace(mp3FilePath), escSpace(wavFilePath))
+            subprocess.call('ffmpeg '+ffParams, shell=True, stdout=self.FNULL, stderr=subprocess.STDOUT)
+            wavWave = wave.open(wavFilePath)
+            wavLength = wavWave.getnframes()/float(wavWave.getframerate())
+            wavWave.close()
+            wordHash[w] = (wavFilePath, wavLength)
             filesToBeDeleted.append(escSpace(wavFilePath))
-        shutil.rmtree(self.MP3S_DIR)
 
         voiceData = []
         voiceWriter = None
@@ -261,7 +262,7 @@ class Song:
             voiceFloats = wave.struct.unpack("%dh"%(len(voiceBytes)/sampwidth), voiceBytes)
 
             if (voiceWriter is None):
-                voiceFilename = "%s/%s.wav" % (self.WAVS_DIR,"Vox")
+                voiceFilename = "%s/%s.%s.wav" % (self.WAVS_DIR,self.songname,"google")
                 if mWordTrader is not None:
                     voiceFilename = voiceFilename.replace(".wav", ".%s.wav"%mWordTrader.name)
                 voiceWriter = wave.open(voiceFilename, 'w')
