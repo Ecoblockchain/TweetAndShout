@@ -12,14 +12,14 @@ inFileKar = ''
 if len(sys.argv) > 1 and sys.argv[1].endswith(".kar"):
     inFileKar = sys.argv[1]
 else:
-    print "Please provide a .kar karaoke file."
+    print "Please provide a .kar karaoke file"
     sys.exit(0)
 
 ## read it and make sure it's a valid kar file
 myKar = midifile.midifile()
 myKar.load_file(inFileKar)
 if not myKar.karfile:
-    print "This is not a valid karaoke file."
+    print "This is not a valid karaoke file"
     sys.exit(0)
 
 ## get filename from file location
