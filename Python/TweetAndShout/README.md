@@ -1,5 +1,6 @@
 **Dependencies:**  
-\- [numpy](http://www.numpy.org/)  
+\- [pygame](http://www.pygame.org/)  
+\- [XQuartz](http://xquartz.macosforge.org/)  
 \- [ffmpeg](https://www.ffmpeg.org/)  
 \- [timidity](http://timidity.sourceforge.net/)  
 \- [soundstretch](http://www.surina.net/soundtouch/soundstretch.html)  
