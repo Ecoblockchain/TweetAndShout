@@ -3,6 +3,11 @@
 import urllib2, urllib, os, re, sys, shutil, wave, math, subprocess
 import midifile
 
+GOOGLE_COOKIE = "ID=776d80ebda4b6a13:TM=1439286275:C=c:IP=31.221.80.130-:S=APGng0sioRLZGdtFXyjXSY7LRKabJYYocQ"
+VOICERSS_KEY = "8da06054ca83462bbe61f69817499793"
+
+TTS_LANGUAGE = "en-gb"  # "en-gb", "en-us", "pt-br", "pt-pt", etc
+
 # escape space on inFileKars being sent to shell commands
 def escSpace(s):
     return s.replace(" ", "\ ")
@@ -208,10 +213,10 @@ class Song:
                 print "%s %s"%(w_.decode('iso-8859-1'),w.decode('iso-8859-1'))
             wordHash[w] = None
 
-        url = 'http://translate.google.com/translate_tts?tl=pt&q='
-        aurl = 'http://api.voicerss.org/?key=8da06054ca83462bbe61f69817499793&hl=en-us&src='
+        url = 'http://translate.google.com/translate_tts?tl=%s&q='%(TTS_LANGUAGE)
+        aurl = 'http://api.voicerss.org/?key=%s&hl=%s&src='%(VOICERSS_KEY, TTS_LANGUAGE)
         header = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
-                   'Cookie' : 'GOOGLE_ABUSE_EXEMPTION=ID=320176ce4c71f022:TM=1439227230:C=c:IP=31.221.80.130-:S=APGng0sFP17-UhR6Sbt7iO-ecmHRLKOuzg' }
+                   'Cookie' : 'GOOGLE_ABUSE_EXEMPTION=%s'%GOOGLE_COOKIE }
 
         filesToBeDeleted = []
         if not os.path.exists(self.MP3S_DIR):
