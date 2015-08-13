@@ -56,5 +56,6 @@ for s in myKar.karsyl:
 outFileLyrics = filename.replace(".kar", ".lyrics.txt")
 with open(os.path.join(OUT_LYRICS_DIR, outFileLyrics), 'w') as lyricsFile:
     for w in lyrics.strip().split(" "):
-        lyricsFile.write("%s\n"%w.decode('iso-8859-1').lower().encode('utf-8'))
+        if w != "":
+            lyricsFile.write("%s\n"%w.decode('iso-8859-1').lower().encode('utf-8'))
 
