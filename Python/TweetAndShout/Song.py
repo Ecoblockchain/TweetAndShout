@@ -32,7 +32,7 @@ class Song:
         kartimes = list(self.midi.kartimes)
         for (i,s) in enumerate(karsyl):
             s = re.sub('[\\\\/_]', ' ', s)
-            s = re.sub('[,.;!?\"\']', '', s)
+            s = re.sub('[,.;!?\"]', '', s)
             karsyl[i] = s
 
         # get syllables and times

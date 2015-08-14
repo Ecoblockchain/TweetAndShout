@@ -49,7 +49,7 @@ if not os.path.exists(OUT_LYRICS_DIR):
 lyrics = ""
 for s in myKar.karsyl:
     s = re.sub('[\\\\/_]', ' ', s)
-    s = re.sub('[,.;!?\"\']', '', s)
+    s = re.sub('[,.;!?\"]', '', s)
     lyrics += s
 
 ## write out lyrics one word per line
