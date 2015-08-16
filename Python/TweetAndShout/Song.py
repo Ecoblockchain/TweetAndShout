@@ -3,14 +3,14 @@
 import urllib2, urllib, os, re, sys, shutil, wave, math, subprocess
 import midifile
 
-GOOGLE_COOKIE = "ID=776d80ebda4b6a13:TM=1439286275:C=c:IP=31.221.80.130-:S=APGng0sioRLZGdtFXyjXSY7LRKabJYYocQ"
+GOOGLE_COOKIE = "ID=c9984a060e5b9bcd:TM=1439570790:C=c:IP=31.221.80.130-:S=APGng0sRPK30-pFsgv2gHwmoNfp-zVrkkA"
 VOICERSS_KEY = "8da06054ca83462bbe61f69817499793"
 
 TTS_LANGUAGE = "en-gb"  # "en-gb", "en-us", "pt-br", "pt-pt", etc
 
 # escape space on inFileKars being sent to shell commands
 def escSpace(s):
-    return s.replace(" ", "\ ")
+    return s.replace(" ", "\ ").replace("\'", "\\'")
 
 class Song:
     def __init__(self, inFileKar, inFileLyrics):
@@ -169,7 +169,7 @@ class Song:
         newLyrics = []
         with open(inFileLyrics, 'r') as lyricsFile:
             for w in lyricsFile:
-                newLyrics.append(w.decode('utf-8').encode('iso-8859-1'))
+                newLyrics.append(w.decode('utf-8').lower().encode('iso-8859-1'))
 
         ## truncate list if one is longer than the other
         if len(newLyrics) > len(words):
@@ -213,9 +213,10 @@ class Song:
                 print "%s %s"%(w_.decode('iso-8859-1'),w.decode('iso-8859-1'))
             wordHash[w] = None
 
-        url = 'http://translate.google.com/translate_tts?tl=%s&q='%(TTS_LANGUAGE)
+        url = 'http://translate.google.com/translate_tts?tl=%s&client=t&q='%(TTS_LANGUAGE)
         aurl = 'http://api.voicerss.org/?key=%s&hl=%s&src='%(VOICERSS_KEY, TTS_LANGUAGE)
         header = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
+                   'Referer' : 'http://translate.google.com/',
                    'Cookie' : 'GOOGLE_ABUSE_EXEMPTION=%s'%GOOGLE_COOKIE }
 
         filesToBeDeleted = []
@@ -242,7 +243,7 @@ class Song:
             wavLength = wavWave.getnframes()/float(wavWave.getframerate())
             wavWave.close()
             wordHash[w] = (wavFilePath, wavLength)
-            filesToBeDeleted.append(escSpace(wavFilePath))
+            filesToBeDeleted.append(escSpace(wavFilePath).replace("\\'","\'"))
 
         voiceData = []
         voiceWriter = None
@@ -258,7 +259,7 @@ class Song:
             outputFile = "%s/%s.wav" % (self.WAVS_DIR,i)
             stParams = "%s %s -tempo=%s" % (escSpace(wordHash[w][0]), outputFile, tempoParam)
             subprocess.call('soundstretch '+stParams, shell='True', stdout=self.FNULL, stderr=subprocess.STDOUT)
-            filesToBeDeleted.append(outputFile)
+            filesToBeDeleted.append(escSpace(outputFile).replace("\\'","\'"))
 
             voiceReader = wave.open(outputFile)
             framerate = voiceReader.getframerate()
