@@ -9,7 +9,7 @@ http://abelhas.pt/zangaomestre/Karaoke/Midi+-+Kar
 Other .kar files:  
 http://karaoke.morenciel.com/  
 
-Python Dependencies!!!  
+**Python Dependencies!!!**  
 **Mac OS X Install:**  
 \- [Audacity](http://www.fosshub.com/Audacity.html/audacity-macosx-ub-2.1.1.dmg)  
 \- [soundstretch](http://www.surina.net/soundtouch/soundstretch_mac_osx_x64_1.7.0.zip)  
